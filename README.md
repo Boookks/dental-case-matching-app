@@ -1,17 +1,19 @@
-# dental_case_matching_app
+# Dental Case Matching App
 
-A new Flutter project.
+A mobile application developed as a graduation project for software engineering students.
 
-## Getting Started
+## Project Idea
+The application helps connect dental students with patients who need dental treatment cases. Patients can create posts describing their dental issue, and dental students can browse available cases and contact patients directly.
 
-This project is a starting point for a Flutter application.
+## Main Features
+- User authentication
+- Patient case posting
+- Student case browsing
+- Case category suggestions
+- Search and filtering
+- Student and patient profiles
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Technologies Used
+- Flutter
+- Firebase Authentication
+- Cloud Firestore
