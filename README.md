@@ -1,4 +1,4 @@
-# Dental Case Matching App
+# DentalLink
 
 A mobile application developed as a graduation project for software engineering students.
 

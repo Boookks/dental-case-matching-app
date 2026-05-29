@@ -1,11 +1,11 @@
 {
-    "name": "dental_case_matching_app",
-    "short_name": "dental_case_matching_app",
+    "name": "DentalLink",
+    "short_name": "DentalLink",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "Connect patients with dental care",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
