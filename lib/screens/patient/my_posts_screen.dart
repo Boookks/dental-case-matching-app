@@ -1,4 +1,5 @@
 import 'package:dental_case_matching_app/constants/app_routes.dart';
+import 'package:dental_case_matching_app/services/post_store.dart';
 import 'package:dental_case_matching_app/widgets/post_card.dart';
 import 'package:dental_case_matching_app/widgets/patient_bottom_nav.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +9,8 @@ class MyPostsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final posts = PostStore.posts;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('My Posts'),
@@ -34,22 +37,31 @@ class MyPostsScreen extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              'Manage your saved case posts from one place.',
+              'View and manage the cases you have posted.',
               style: Theme.of(context).textTheme.bodyMedium,
             ),
             const SizedBox(height: 12),
-            const PostCard(
-              title: 'Upper tooth pain',
-              description:
-                  'Pain while eating cold food and sensitivity near the molar.',
-              caseType: 'Possible Cavity Case',
-            ),
-            const SizedBox(height: 12),
-            const PostCard(
-              title: 'Bleeding gums',
-              description: 'Gums bleed during brushing and feel swollen.',
-              caseType: 'Possible Gum Disease Case',
-            ),
+            if (posts.isEmpty)
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(18),
+                  child: Text(
+                    'You have not created any posts yet.',
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                ),
+              )
+            else
+              ...[
+                for (final post in posts) ...[
+                  PostCard(
+                    title: post.title,
+                    description: post.description,
+                    caseType: post.suggestedCaseType,
+                  ),
+                  const SizedBox(height: 12),
+                ],
+              ],
           ],
         ),
       ),

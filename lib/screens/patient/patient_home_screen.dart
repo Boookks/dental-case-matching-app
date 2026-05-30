@@ -12,6 +12,7 @@ class PatientHomeScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text(AppStrings.appName),
+        automaticallyImplyLeading: false,
       ),
       bottomNavigationBar: PatientBottomNav(
         selectedIndex: 0,

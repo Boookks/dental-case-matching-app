@@ -1,6 +1,8 @@
+import 'package:dental_case_matching_app/constants/app_colors.dart';
 import 'package:dental_case_matching_app/constants/app_routes.dart';
 import 'package:dental_case_matching_app/constants/app_strings.dart';
-import 'package:dental_case_matching_app/constants/app_colors.dart';
+import 'package:dental_case_matching_app/models/post_model.dart';
+import 'package:dental_case_matching_app/services/post_store.dart';
 import 'package:dental_case_matching_app/widgets/student_bottom_nav.dart';
 import 'package:flutter/material.dart';
 
@@ -9,6 +11,23 @@ class CaseDetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final fallbackPost = PostModel(
+      postId: 'fallback',
+      userId: 'demo-patient',
+      title: 'Patient Case',
+      description: 'No case details are available yet.',
+      symptoms: const [],
+      suggestedCaseType: 'Possible Cavity Case',
+      contactInfo: 'Not provided',
+      createdAt: DateTime.now(),
+    );
+    final post =
+        ModalRoute.of(context)?.settings.arguments as PostModel? ??
+            (PostStore.posts.isNotEmpty ? PostStore.posts.first : fallbackPost);
+    final contactInfo = post.contactInfo.isEmpty
+        ? 'Not provided'
+        : post.contactInfo;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(AppStrings.appName),
@@ -32,9 +51,8 @@ class CaseDetailsScreen extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             _SummaryCard(
-              title: 'Possible Cavity Case',
-              subtitle:
-                  'A student review of a post involving molar pain and cold sensitivity.',
+              title: post.suggestedCaseType,
+              subtitle: post.title,
             ),
             const SizedBox(height: 12),
             Card(
@@ -44,12 +62,12 @@ class CaseDetailsScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Symptoms',
+                      'Additional Information',
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Pain while eating cold food and sensitivity near the upper right molar.',
+                      post.description,
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                     const SizedBox(height: 16),
@@ -59,12 +77,7 @@ class CaseDetailsScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Phone: 000-000-0000',
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Email: patient@example.com',
+                      'Phone: $contactInfo',
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                   ],

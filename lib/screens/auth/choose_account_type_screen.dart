@@ -19,7 +19,7 @@ class ChooseAccountTypeScreen extends StatelessWidget {
             description: 'Browse and contact patient cases',
             icon: Icons.school_outlined,
             onTap: () {
-              AppSession.accountType = AccountType.dentalStudent;
+              AppSession.setAccountType(AccountType.dentalStudent);
               Navigator.pushReplacementNamed(context, AppRoutes.studentHome);
             },
           ),
@@ -29,7 +29,7 @@ class ChooseAccountTypeScreen extends StatelessWidget {
             description: 'Create posts for dental issues',
             icon: Icons.person_outline,
             onTap: () {
-              AppSession.accountType = AccountType.patient;
+              AppSession.setAccountType(AccountType.patient);
               Navigator.pushReplacementNamed(context, AppRoutes.patientHome);
             },
           ),

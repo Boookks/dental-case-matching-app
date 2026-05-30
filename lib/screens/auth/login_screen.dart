@@ -1,6 +1,5 @@
 import 'package:dental_case_matching_app/constants/app_routes.dart';
 import 'package:dental_case_matching_app/constants/app_strings.dart';
-import 'package:dental_case_matching_app/utils/account_type.dart';
 import 'package:dental_case_matching_app/utils/app_session.dart';
 import 'package:dental_case_matching_app/widgets/app_page_scaffold.dart';
 import 'package:dental_case_matching_app/widgets/custom_button.dart';
@@ -54,11 +53,10 @@ class LoginScreen extends StatelessWidget {
             label: 'Login',
             icon: Icons.login_rounded,
             onPressed: () {
-              final accountType = AppSession.accountType;
-              final route = accountType == AccountType.dentalStudent
-                  ? AppRoutes.studentHome
-                  : AppRoutes.patientHome;
-              Navigator.pushReplacementNamed(context, route);
+              Navigator.pushReplacementNamed(
+                context,
+                AppSession.routeAfterLogin(),
+              );
             },
           ),
           const SizedBox(height: 16),

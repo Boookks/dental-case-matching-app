@@ -1,6 +1,7 @@
-import 'package:dental_case_matching_app/constants/app_routes.dart';
 import 'package:dental_case_matching_app/constants/app_colors.dart';
+import 'package:dental_case_matching_app/constants/app_routes.dart';
 import 'package:dental_case_matching_app/constants/app_strings.dart';
+import 'package:dental_case_matching_app/services/post_store.dart';
 import 'package:dental_case_matching_app/widgets/post_card.dart';
 import 'package:dental_case_matching_app/widgets/student_bottom_nav.dart';
 import 'package:flutter/material.dart';
@@ -10,9 +11,12 @@ class StudentHomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final posts = PostStore.posts;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(AppStrings.appName),
+        automaticallyImplyLeading: false,
       ),
       bottomNavigationBar: StudentBottomNav(
         selectedIndex: 0,
@@ -66,29 +70,32 @@ class StudentHomeScreen extends StatelessWidget {
               style: Theme.of(context).textTheme.headlineMedium,
             ),
             const SizedBox(height: 12),
-            PostCard(
-              title: 'Upper molar pain',
-              description:
-                  'Patient reports sensitivity when eating cold food and pressure on the upper right molar.',
-              caseType: 'Possible Cavity Case',
-              onTap: () => Navigator.pushNamed(context, AppRoutes.caseDetails),
-            ),
-            const SizedBox(height: 12),
-            PostCard(
-              title: 'Bleeding gums',
-              description:
-                  'Gums bleed during brushing and feel swollen near the front teeth.',
-              caseType: 'Possible Gum Disease Case',
-              onTap: () => Navigator.pushNamed(context, AppRoutes.caseDetails),
-            ),
-            const SizedBox(height: 12),
-            PostCard(
-              title: 'Jaw pain after eating',
-              description:
-                  'Pain starts when chewing hard food and the patient feels discomfort in the back lower jaw.',
-              caseType: 'Possible Root Canal Case',
-              onTap: () => Navigator.pushNamed(context, AppRoutes.caseDetails),
-            ),
+            if (posts.isEmpty)
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(18),
+                  child: Text(
+                    'No cases are available yet.',
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                ),
+              )
+            else
+              ...[
+                for (final post in posts) ...[
+                  PostCard(
+                    title: post.title,
+                    description: post.description,
+                    caseType: post.suggestedCaseType,
+                    onTap: () => Navigator.pushNamed(
+                      context,
+                      AppRoutes.caseDetails,
+                      arguments: post,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                ],
+              ],
           ],
         ),
       ),

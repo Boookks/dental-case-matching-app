@@ -1,4 +1,5 @@
 import 'package:dental_case_matching_app/constants/app_routes.dart';
+import 'package:dental_case_matching_app/utils/app_session.dart';
 import 'package:dental_case_matching_app/widgets/app_page_scaffold.dart';
 import 'package:dental_case_matching_app/widgets/custom_button.dart';
 import 'package:dental_case_matching_app/widgets/custom_textfield.dart';
@@ -41,30 +42,10 @@ class RegisterScreen extends StatelessWidget {
           CustomButton(
             label: 'Create Account',
             icon: Icons.person_add_alt_1_outlined,
-            onPressed: () => Navigator.pushReplacementNamed(
-              context,
-              AppRoutes.chooseAccountType,
-            ),
-          ),
-          const SizedBox(height: 12),
-          Center(
-            child: Wrap(
-              crossAxisAlignment: WrapCrossAlignment.center,
-              spacing: 6,
-              children: [
-                Text(
-                  'Already have an account?',
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-                TextButton(
-                  onPressed: () => Navigator.pushReplacementNamed(
-                    context,
-                    AppRoutes.login,
-                  ),
-                  child: const Text('Login'),
-                ),
-              ],
-            ),
+            onPressed: () {
+              AppSession.clearSession();
+              Navigator.pushNamed(context, AppRoutes.chooseAccountType);
+            },
           ),
         ],
       ),

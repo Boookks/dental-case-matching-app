@@ -1,6 +1,7 @@
-import 'package:dental_case_matching_app/constants/app_routes.dart';
 import 'package:dental_case_matching_app/constants/app_colors.dart';
+import 'package:dental_case_matching_app/constants/app_routes.dart';
 import 'package:dental_case_matching_app/constants/app_strings.dart';
+import 'package:dental_case_matching_app/services/post_store.dart';
 import 'package:dental_case_matching_app/widgets/post_card.dart';
 import 'package:dental_case_matching_app/widgets/student_bottom_nav.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +11,8 @@ class FilterScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final posts = PostStore.posts;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(AppStrings.appName),
@@ -52,19 +55,32 @@ class FilterScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 12),
-            const PostCard(
-              title: 'Upper molar pain',
-              description:
-                  'Patient reports sensitivity when eating cold food and pressure on the upper right molar.',
-              caseType: 'Possible Root Canal Case',
-            ),
-            const SizedBox(height: 12),
-            const PostCard(
-              title: 'Bleeding gums',
-              description:
-                  'Gums bleed during brushing and feel swollen near the front teeth.',
-              caseType: 'Possible Gum Disease Case',
-            ),
+            if (posts.isEmpty)
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(18),
+                  child: Text(
+                    'No cases match the current filters yet.',
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                ),
+              )
+            else
+              ...[
+                for (final post in posts) ...[
+                  PostCard(
+                    title: post.title,
+                    description: post.description,
+                    caseType: post.suggestedCaseType,
+                    onTap: () => Navigator.pushNamed(
+                      context,
+                      AppRoutes.caseDetails,
+                      arguments: post,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                ],
+              ],
           ],
         ),
       ),
