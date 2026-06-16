@@ -58,6 +58,8 @@ class MyPostsScreen extends StatelessWidget {
                     title: post.title,
                     description: post.description,
                     caseType: post.suggestedCaseType,
+                    statusLabel:
+                        post.isAlreadyAssessed ? 'Already Assessed' : 'Not Yet Assessed',
                   ),
                   const SizedBox(height: 12),
                 ],

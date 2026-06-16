@@ -18,6 +18,7 @@ class CaseDetailsScreen extends StatelessWidget {
       description: 'No case details are available yet.',
       symptoms: const [],
       suggestedCaseType: 'Possible Cavity Case',
+      isAlreadyAssessed: false,
       contactInfo: 'Not provided',
       createdAt: DateTime.now(),
     );
@@ -64,6 +65,26 @@ class CaseDetailsScreen extends StatelessWidget {
                     Text(
                       'Additional Information',
                       style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                    const SizedBox(height: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.softBlue,
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                      child: Text(
+                        post.isAlreadyAssessed
+                            ? 'Already Assessed'
+                            : 'Not Yet Assessed',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: AppColors.primary,
+                              fontWeight: FontWeight.w700,
+                            ),
+                      ),
                     ),
                     const SizedBox(height: 8),
                     Text(

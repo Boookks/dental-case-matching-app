@@ -30,7 +30,14 @@ class ChooseAccountTypeScreen extends StatelessWidget {
             icon: Icons.person_outline,
             onTap: () {
               AppSession.setAccountType(AccountType.patient);
-              Navigator.pushReplacementNamed(context, AppRoutes.patientHome);
+              final hasPhoneNumber =
+                  AppSession.patientPhoneNumber?.trim().isNotEmpty ?? false;
+              if (hasPhoneNumber) {
+                Navigator.pushReplacementNamed(context, AppRoutes.patientHome);
+                return;
+              }
+
+              Navigator.pushNamed(context, AppRoutes.patientContactInfo);
             },
           ),
         ],

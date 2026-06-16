@@ -6,6 +6,7 @@ class PostModel {
     required this.description,
     required this.symptoms,
     required this.suggestedCaseType,
+    required this.isAlreadyAssessed,
     required this.contactInfo,
     this.createdAt,
   });
@@ -16,6 +17,7 @@ class PostModel {
   final String description;
   final List<String> symptoms;
   final String suggestedCaseType;
+  final bool isAlreadyAssessed;
   final String contactInfo;
   final DateTime? createdAt;
 
@@ -27,6 +29,7 @@ class PostModel {
       'description': description,
       'symptoms': symptoms,
       'suggestedCaseType': suggestedCaseType,
+      'isAlreadyAssessed': isAlreadyAssessed,
       'contactInfo': contactInfo,
       'createdAt': createdAt?.toIso8601String(),
     };
@@ -40,6 +43,7 @@ class PostModel {
       description: map['description'] as String? ?? '',
       symptoms: List<String>.from(map['symptoms'] as List? ?? const []),
       suggestedCaseType: map['suggestedCaseType'] as String? ?? '',
+      isAlreadyAssessed: map['isAlreadyAssessed'] as bool? ?? false,
       contactInfo: map['contactInfo'] as String? ?? '',
       createdAt: DateTime.tryParse(map['createdAt'] as String? ?? ''),
     );

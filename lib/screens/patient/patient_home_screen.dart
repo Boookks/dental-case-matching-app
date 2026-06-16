@@ -3,62 +3,71 @@ import 'package:dental_case_matching_app/constants/app_routes.dart';
 import 'package:dental_case_matching_app/constants/app_strings.dart';
 import 'package:dental_case_matching_app/widgets/patient_bottom_nav.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class PatientHomeScreen extends StatelessWidget {
   const PatientHomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(AppStrings.appName),
-        automaticallyImplyLeading: false,
-      ),
-      bottomNavigationBar: PatientBottomNav(
-        selectedIndex: 0,
-        onHomeTap: () {},
-        onCreateTap: () {
-          Navigator.pushNamed(context, AppRoutes.createPost);
-        },
-        onProfileTap: () {
-          Navigator.pushNamed(context, AppRoutes.patientProfile);
-        },
-      ),
-      body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
-          children: [
-            Text(
-              'Patient Dashboard',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Start by getting a suggested case type or view your posts.',
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-            const SizedBox(height: 18),
-            _ActionCard(
-              title: 'Smart Case Suggestion',
-              description:
-                  'Answer a few questions and get a suggested case type.',
-              buttonLabel: 'Start Now',
-              icon: Icons.psychology_alt_rounded,
-              onPressed: () {
-                Navigator.pushNamed(context, AppRoutes.smartSuggestion);
-              },
-            ),
-            const SizedBox(height: 16),
-            _ActionCard(
-              title: 'My Posts',
-              description: 'View and manage all of your saved case posts.',
-              buttonLabel: 'View Posts',
-              icon: Icons.list_alt_rounded,
-              onPressed: () {
-                Navigator.pushNamed(context, AppRoutes.myPosts);
-              },
-            ),
-          ],
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) {
+          SystemNavigator.pop();
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text(AppStrings.appName),
+          automaticallyImplyLeading: false,
+        ),
+        bottomNavigationBar: PatientBottomNav(
+          selectedIndex: 0,
+          onHomeTap: () {},
+          onCreateTap: () {
+            Navigator.pushNamed(context, AppRoutes.createPost);
+          },
+          onProfileTap: () {
+            Navigator.pushNamed(context, AppRoutes.patientProfile);
+          },
+        ),
+        body: SafeArea(
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+            children: [
+              Text(
+                'Patient Dashboard',
+                style: Theme.of(context).textTheme.headlineMedium,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Start by getting a suggested case type or view your posts.',
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+              const SizedBox(height: 18),
+              _ActionCard(
+                title: 'Smart Case Suggestion',
+                description:
+                    'Answer a few questions and get a suggested case type.',
+                buttonLabel: 'Start Now',
+                icon: Icons.psychology_alt_rounded,
+                onPressed: () {
+                  Navigator.pushNamed(context, AppRoutes.smartSuggestion);
+                },
+              ),
+              const SizedBox(height: 16),
+              _ActionCard(
+                title: 'My Posts',
+                description: 'View and manage all of your saved case posts.',
+                buttonLabel: 'View Posts',
+                icon: Icons.list_alt_rounded,
+                onPressed: () {
+                  Navigator.pushNamed(context, AppRoutes.myPosts);
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );

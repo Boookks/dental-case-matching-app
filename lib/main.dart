@@ -1,6 +1,7 @@
 import 'package:dental_case_matching_app/constants/app_routes.dart';
 import 'package:dental_case_matching_app/constants/app_theme.dart';
 import 'package:dental_case_matching_app/screens/auth/login_screen.dart';
+import 'package:dental_case_matching_app/screens/auth/patient_contact_info_screen.dart';
 import 'package:dental_case_matching_app/screens/auth/register_screen.dart';
 import 'package:dental_case_matching_app/screens/auth/choose_account_type_screen.dart';
 import 'package:dental_case_matching_app/screens/patient/create_post_screen.dart';
@@ -34,6 +35,7 @@ class DentalCaseMatchingApp extends StatelessWidget {
         AppRoutes.login: (_) => const LoginScreen(),
         AppRoutes.register: (_) => const RegisterScreen(),
         AppRoutes.chooseAccountType: (_) => const ChooseAccountTypeScreen(),
+        AppRoutes.patientContactInfo: (_) => const PatientContactInfoScreen(),
         AppRoutes.patientHome: (_) => const PatientHomeScreen(),
         AppRoutes.smartSuggestion: (_) => const SmartSuggestionScreen(),
         AppRoutes.createPost: (_) => const CreatePostScreen(),

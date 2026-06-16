@@ -2,6 +2,7 @@ class AppRoutes {
   static const String login = '/login';
   static const String register = '/register';
   static const String chooseAccountType = '/choose-account-type';
+  static const String patientContactInfo = '/patient-contact-info';
   static const String patientHome = '/patient-home';
   static const String smartSuggestion = '/smart-suggestion';
   static const String createPost = '/create-post';

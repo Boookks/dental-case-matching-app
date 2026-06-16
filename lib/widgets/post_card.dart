@@ -7,12 +7,14 @@ class PostCard extends StatelessWidget {
     required this.title,
     required this.description,
     required this.caseType,
+    this.statusLabel,
     this.onTap,
   });
 
   final String title;
   final String description;
   final String caseType;
+  final String? statusLabel;
   final VoidCallback? onTap;
 
   @override
@@ -53,6 +55,29 @@ class PostCard extends StatelessWidget {
                           caseType,
                           style: Theme.of(context).textTheme.bodyMedium,
                         ),
+                        if (statusLabel != null) ...[
+                          const SizedBox(height: 6),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColors.softBlue,
+                              borderRadius: BorderRadius.circular(999),
+                            ),
+                            child: Text(
+                              statusLabel!,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(
+                                    color: AppColors.primary,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                            ),
+                          ),
+                        ],
                       ],
                     ),
                   ),

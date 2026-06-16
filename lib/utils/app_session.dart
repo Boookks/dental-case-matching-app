@@ -12,7 +12,9 @@ class AppSession {
       case AccountType.dentalStudent:
         return AppRoutes.studentHome;
       case AccountType.patient:
-        return AppRoutes.patientHome;
+        return patientPhoneNumber?.trim().isNotEmpty ?? false
+            ? AppRoutes.patientHome
+            : AppRoutes.patientContactInfo;
       case null:
         return AppRoutes.chooseAccountType;
     }

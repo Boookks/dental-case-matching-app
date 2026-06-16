@@ -72,6 +72,8 @@ class FilterScreen extends StatelessWidget {
                     title: post.title,
                     description: post.description,
                     caseType: post.suggestedCaseType,
+                    statusLabel:
+                        post.isAlreadyAssessed ? 'Already Assessed' : 'Not Yet Assessed',
                     onTap: () => Navigator.pushNamed(
                       context,
                       AppRoutes.caseDetails,
