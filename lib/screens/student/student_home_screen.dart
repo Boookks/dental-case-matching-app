@@ -21,8 +21,9 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
     'Cavity',
     'Gum Disease',
     'Root Canal',
-    'Wisdom Tooth',
-    'Sensitivity',
+    'Extraction',
+    'Prosthesis',
+    'Braces',
   ];
 
   String _selectedFilter = 'All';

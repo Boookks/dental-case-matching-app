@@ -25,18 +25,20 @@ class CreatePostScreen extends StatefulWidget {
 class _CreatePostScreenState extends State<CreatePostScreen> {
   static const List<String> _assessedCaseTypes = <String>[
     'Cavity Case',
-    'Gum Disease Case',
     'Root Canal Case',
-    'Wisdom Tooth Case',
-    'Sensitivity Case',
+    'Gum Disease Case',
+    'Extraction Case',
+    'Prosthesis Case',
+    'Braces Case',
   ];
 
   static const List<String> _notAssessedCaseTypes = <String>[
     'Possible Cavity Case',
-    'Possible Gum Disease Case',
     'Possible Root Canal Case',
-    'Possible Wisdom Tooth Case',
-    'Possible Sensitivity Case',
+    'Possible Gum Disease Case',
+    'Possible Extraction Case',
+    'Possible Prosthesis Case',
+    'Possible Braces Case',
   ];
 
   late final TextEditingController _detailsController;
