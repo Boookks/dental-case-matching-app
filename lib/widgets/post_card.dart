@@ -6,15 +6,17 @@ class PostCard extends StatelessWidget {
     super.key,
     required this.title,
     required this.description,
-    required this.caseType,
-    this.statusLabel,
+    required this.dateLabel,
+    required this.dateValue,
+    this.assessmentLabel,
     this.onTap,
   });
 
   final String title;
   final String description;
-  final String caseType;
-  final String? statusLabel;
+  final String dateLabel;
+  final String dateValue;
+  final String? assessmentLabel;
   final VoidCallback? onTap;
 
   @override
@@ -50,12 +52,7 @@ class PostCard extends StatelessWidget {
                           title,
                           style: Theme.of(context).textTheme.titleLarge,
                         ),
-                        const SizedBox(height: 4),
-                        Text(
-                          caseType,
-                          style: Theme.of(context).textTheme.bodyMedium,
-                        ),
-                        if (statusLabel != null) ...[
+                        if (assessmentLabel != null) ...[
                           const SizedBox(height: 6),
                           Container(
                             padding: const EdgeInsets.symmetric(
@@ -67,7 +64,7 @@ class PostCard extends StatelessWidget {
                               borderRadius: BorderRadius.circular(999),
                             ),
                             child: Text(
-                              statusLabel!,
+                              assessmentLabel!,
                               style: Theme.of(context)
                                   .textTheme
                                   .bodySmall
@@ -75,7 +72,7 @@ class PostCard extends StatelessWidget {
                                     color: AppColors.primary,
                                     fontWeight: FontWeight.w700,
                                   ),
-                            ),
+                              ),
                           ),
                         ],
                       ],
@@ -89,6 +86,21 @@ class PostCard extends StatelessWidget {
                 style: Theme.of(context).textTheme.bodyMedium,
                 maxLines: 3,
                 overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                '$dateLabel: $dateValue',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+              ),
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton(
+                  onPressed: onTap,
+                  child: const Text('View Details'),
+                ),
               ),
             ],
           ),

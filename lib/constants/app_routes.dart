@@ -9,7 +9,6 @@ class AppRoutes {
   static const String myPosts = '/my-posts';
   static const String patientProfile = '/patient-profile';
   static const String studentHome = '/student-home';
-  static const String filterCases = '/filter-cases';
   static const String caseDetails = '/case-details';
   static const String studentProfile = '/student-profile';
 }

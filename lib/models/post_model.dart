@@ -8,7 +8,9 @@ class PostModel {
     required this.suggestedCaseType,
     required this.isAlreadyAssessed,
     required this.contactInfo,
+    this.isClosed = false,
     this.createdAt,
+    this.closedAt,
   });
 
   final String postId;
@@ -19,7 +21,37 @@ class PostModel {
   final String suggestedCaseType;
   final bool isAlreadyAssessed;
   final String contactInfo;
+  final bool isClosed;
   final DateTime? createdAt;
+  final DateTime? closedAt;
+
+  PostModel copyWith({
+    String? postId,
+    String? userId,
+    String? title,
+    String? description,
+    List<String>? symptoms,
+    String? suggestedCaseType,
+    bool? isAlreadyAssessed,
+    String? contactInfo,
+    bool? isClosed,
+    DateTime? createdAt,
+    DateTime? closedAt,
+  }) {
+    return PostModel(
+      postId: postId ?? this.postId,
+      userId: userId ?? this.userId,
+      title: title ?? this.title,
+      description: description ?? this.description,
+      symptoms: symptoms ?? this.symptoms,
+      suggestedCaseType: suggestedCaseType ?? this.suggestedCaseType,
+      isAlreadyAssessed: isAlreadyAssessed ?? this.isAlreadyAssessed,
+      contactInfo: contactInfo ?? this.contactInfo,
+      isClosed: isClosed ?? this.isClosed,
+      createdAt: createdAt ?? this.createdAt,
+      closedAt: closedAt ?? this.closedAt,
+    );
+  }
 
   Map<String, dynamic> toMap() {
     return {
@@ -31,7 +63,9 @@ class PostModel {
       'suggestedCaseType': suggestedCaseType,
       'isAlreadyAssessed': isAlreadyAssessed,
       'contactInfo': contactInfo,
+      'isClosed': isClosed,
       'createdAt': createdAt?.toIso8601String(),
+      'closedAt': closedAt?.toIso8601String(),
     };
   }
 
@@ -45,7 +79,9 @@ class PostModel {
       suggestedCaseType: map['suggestedCaseType'] as String? ?? '',
       isAlreadyAssessed: map['isAlreadyAssessed'] as bool? ?? false,
       contactInfo: map['contactInfo'] as String? ?? '',
+      isClosed: map['isClosed'] as bool? ?? false,
       createdAt: DateTime.tryParse(map['createdAt'] as String? ?? ''),
+      closedAt: DateTime.tryParse(map['closedAt'] as String? ?? ''),
     );
   }
 }

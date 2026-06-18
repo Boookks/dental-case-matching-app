@@ -11,7 +11,6 @@ import 'package:dental_case_matching_app/screens/patient/profile_screen.dart'
     as patient_profile;
 import 'package:dental_case_matching_app/screens/patient/smart_suggestion_screen.dart';
 import 'package:dental_case_matching_app/screens/student/case_details_screen.dart';
-import 'package:dental_case_matching_app/screens/student/filter_screen.dart';
 import 'package:dental_case_matching_app/screens/student/profile_screen.dart'
     as student_profile;
 import 'package:dental_case_matching_app/screens/student/student_home_screen.dart';
@@ -42,7 +41,6 @@ class DentalCaseMatchingApp extends StatelessWidget {
         AppRoutes.myPosts: (_) => const MyPostsScreen(),
         AppRoutes.patientProfile: (_) => const patient_profile.ProfileScreen(),
         AppRoutes.studentHome: (_) => const StudentHomeScreen(),
-        AppRoutes.filterCases: (_) => const FilterScreen(),
         AppRoutes.caseDetails: (_) => const CaseDetailsScreen(),
         AppRoutes.studentProfile: (_) => const student_profile.ProfileScreen(),
       },

@@ -11,7 +11,7 @@ class FilterScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final posts = PostStore.posts;
+    final posts = PostStore.activePosts;
 
     return Scaffold(
       appBar: AppBar(
@@ -69,11 +69,15 @@ class FilterScreen extends StatelessWidget {
               ...[
                 for (final post in posts) ...[
                   PostCard(
-                    title: post.title,
+                    title: post.suggestedCaseType,
                     description: post.description,
-                    caseType: post.suggestedCaseType,
-                    statusLabel:
-                        post.isAlreadyAssessed ? 'Already Assessed' : 'Not Yet Assessed',
+                    assessmentLabel: post.isAlreadyAssessed
+                        ? 'Already Assessed'
+                        : 'Not Yet Assessed',
+                    dateLabel: 'Posted on',
+                    dateValue: post.createdAt == null
+                        ? 'Unknown date'
+                        : post.createdAt!.toIso8601String().split('T').first,
                     onTap: () => Navigator.pushNamed(
                       context,
                       AppRoutes.caseDetails,

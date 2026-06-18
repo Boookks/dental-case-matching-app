@@ -1,18 +1,63 @@
 import 'package:dental_case_matching_app/constants/app_colors.dart';
 import 'package:dental_case_matching_app/constants/app_routes.dart';
 import 'package:dental_case_matching_app/constants/app_strings.dart';
+import 'package:dental_case_matching_app/models/post_model.dart';
 import 'package:dental_case_matching_app/services/post_store.dart';
 import 'package:dental_case_matching_app/widgets/post_card.dart';
 import 'package:dental_case_matching_app/widgets/student_bottom_nav.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class StudentHomeScreen extends StatelessWidget {
+class StudentHomeScreen extends StatefulWidget {
   const StudentHomeScreen({super.key});
 
   @override
+  State<StudentHomeScreen> createState() => _StudentHomeScreenState();
+}
+
+class _StudentHomeScreenState extends State<StudentHomeScreen> {
+  static const List<String> _filterLabels = <String>[
+    'All',
+    'Cavity',
+    'Gum Disease',
+    'Root Canal',
+    'Wisdom Tooth',
+    'Sensitivity',
+  ];
+
+  String _selectedFilter = 'All';
+
+  List<PostModel> get _filteredPosts {
+    final posts = PostStore.activePosts;
+
+    if (_selectedFilter == 'All') {
+      return posts;
+    }
+
+    return posts.where((post) {
+      return _normalizedCaseType(post.suggestedCaseType) ==
+          _selectedFilter.toLowerCase();
+    }).toList();
+  }
+
+  String _normalizedCaseType(String caseType) {
+    final cleaned = caseType
+        .replaceAll(RegExp(r'^possible\s+', caseSensitive: false), '')
+        .replaceAll(RegExp(r'\s+case$', caseSensitive: false), '')
+        .trim();
+
+    return cleaned.toLowerCase();
+  }
+
+  void _setFilter(String filter) {
+    setState(() {
+      _selectedFilter = filter;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final posts = PostStore.posts;
+    final posts = _filteredPosts;
 
     return PopScope(
       canPop: false,
@@ -37,53 +82,40 @@ class StudentHomeScreen extends StatelessWidget {
           child: ListView(
             padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
             children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 14),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(18),
-                        border: Border.all(color: AppColors.border),
-                      ),
-                      child: const TextField(
-                        decoration: InputDecoration(
-                          icon: Icon(Icons.search_rounded),
-                          hintText: 'Search cases',
-                          border: InputBorder.none,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(18),
-                      border: Border.all(color: AppColors.border),
-                    ),
-                    child: IconButton(
-                      onPressed: () {
-                        Navigator.pushNamed(context, AppRoutes.filterCases);
-                      },
-                      icon: const Icon(Icons.tune_rounded),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
               Text(
                 'All Cases',
                 style: Theme.of(context).textTheme.headlineMedium,
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 8),
+              Text(
+                'Use the case chips to narrow down the list.',
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+              const SizedBox(height: 16),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    for (final label in _filterLabels) ...[
+                      _CaseFilterChip(
+                        label: label,
+                        selected: _selectedFilter == label,
+                        onTap: () => _setFilter(label),
+                      ),
+                      if (label != _filterLabels.last) const SizedBox(width: 8),
+                    ],
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
               if (posts.isEmpty)
                 Card(
                   child: Padding(
                     padding: const EdgeInsets.all(18),
                     child: Text(
-                      'No cases are available yet.',
+                      _selectedFilter == 'All'
+                          ? 'No cases are available yet.'
+                          : 'No cases match this filter yet.',
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                   ),
@@ -92,11 +124,13 @@ class StudentHomeScreen extends StatelessWidget {
                 ...[
                   for (final post in posts) ...[
                     PostCard(
-                      title: post.title,
+                      title: post.suggestedCaseType,
                       description: post.description,
-                      caseType: post.suggestedCaseType,
-                      statusLabel:
-                          post.isAlreadyAssessed ? 'Already Assessed' : 'Not Yet Assessed',
+                      assessmentLabel: post.isAlreadyAssessed
+                          ? 'Already Assessed'
+                          : 'Not Yet Assessed',
+                      dateLabel: 'Posted on',
+                      dateValue: _formatDate(post.createdAt),
                       onTap: () => Navigator.pushNamed(
                         context,
                         AppRoutes.caseDetails,
@@ -107,6 +141,72 @@ class StudentHomeScreen extends StatelessWidget {
                   ],
                 ],
             ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _formatDate(DateTime? dateTime) {
+    if (dateTime == null) {
+      return 'Unknown date';
+    }
+
+    const months = <String>[
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+
+    final month = months[dateTime.month - 1];
+    return '$month ${dateTime.day}, ${dateTime.year}';
+  }
+}
+
+class _CaseFilterChip extends StatelessWidget {
+  const _CaseFilterChip({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = selected ? AppColors.primary : AppColors.textSecondary;
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(999),
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          decoration: BoxDecoration(
+            color: selected ? AppColors.softBlue : Colors.white,
+            borderRadius: BorderRadius.circular(999),
+            border: Border.all(
+              color: selected ? AppColors.primary : AppColors.border,
+            ),
+          ),
+          child: Text(
+            label,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: color,
+                  fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                ),
           ),
         ),
       ),
