@@ -1,0 +1,52 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return signedIn() && request.auth.uid == userId;
+    }
+
+    match /users/{userId} {
+      allow create: if isOwner(userId)
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.name is string
+        && request.resource.data.email is string
+        && request.resource.data.role is string;
+
+      allow read, update: if isOwner(userId);
+      allow delete: if false;
+    }
+
+    match /posts/{postId} {
+      allow create: if signedIn()
+        && request.resource.data.postId == postId
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.patientName is string
+        && request.resource.data.title is string
+        && request.resource.data.description is string
+        && request.resource.data.symptoms is list
+        && request.resource.data.suggestedCaseType is string
+        && request.resource.data.isAlreadyAssessed is bool
+        && request.resource.data.contactInfo is string
+        && request.resource.data.isClosed == false;
+
+      allow read: if signedIn()
+        && (!resource.data.isClosed || resource.data.userId == request.auth.uid);
+
+      allow update: if signedIn()
+        && resource.data.userId == request.auth.uid
+        && request.resource.data.postId == resource.data.postId
+        && request.resource.data.userId == resource.data.userId;
+
+      allow delete: if signedIn() && resource.data.userId == request.auth.uid;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
