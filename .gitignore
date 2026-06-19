@@ -33,6 +33,9 @@ migrate_working_dir/
 /build/
 /coverage/
 
+# Local Firebase CLI binary
+firebase-win.exe
+
 # Symbolication related
 app.*.symbols
 

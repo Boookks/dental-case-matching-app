@@ -65,14 +65,12 @@ class PostCard extends StatelessWidget {
                             ),
                             child: Text(
                               assessmentLabel!,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodySmall
+                              style: Theme.of(context).textTheme.bodySmall
                                   ?.copyWith(
                                     color: AppColors.primary,
                                     fontWeight: FontWeight.w700,
                                   ),
-                              ),
+                            ),
                           ),
                         ],
                       ],
@@ -90,9 +88,9 @@ class PostCard extends StatelessWidget {
               const SizedBox(height: 8),
               Text(
                 '$dateLabel: $dateValue',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: AppColors.textSecondary,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
               ),
               const SizedBox(height: 12),
               SizedBox(

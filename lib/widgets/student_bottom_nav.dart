@@ -86,9 +86,9 @@ class _NavItem extends StatelessWidget {
             Text(
               label,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: color,
-                    fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-                  ),
+                color: color,
+                fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+              ),
             ),
           ],
         ),

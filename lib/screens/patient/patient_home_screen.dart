@@ -104,21 +104,12 @@ class _ActionCard extends StatelessWidget {
                 color: AppColors.softBlue,
                 borderRadius: BorderRadius.circular(16),
               ),
-              child: Icon(
-                icon,
-                color: AppColors.primary,
-              ),
+              child: Icon(icon, color: AppColors.primary),
             ),
             const SizedBox(height: 16),
-            Text(
-              title,
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
+            Text(title, style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: 8),
-            Text(
-              description,
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
+            Text(description, style: Theme.of(context).textTheme.bodyMedium),
             const SizedBox(height: 16),
             SizedBox(
               width: double.infinity,

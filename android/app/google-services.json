@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "835907354613",
+    "project_id": "dental-case-matching-app",
+    "storage_bucket": "dental-case-matching-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:835907354613:android:23cf48594eb63b561a2abc",
+        "android_client_info": {
+          "package_name": "com.example.dental_case_matching_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBWcFehHxOxGENfYEd0xlFNtGxDTngMPQ0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

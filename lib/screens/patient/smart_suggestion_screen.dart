@@ -12,11 +12,7 @@ class SmartSuggestionScreen extends StatefulWidget {
   State<SmartSuggestionScreen> createState() => _SmartSuggestionScreenState();
 }
 
-enum _SuggestionStage {
-  topicSelection,
-  questions,
-  result,
-}
+enum _SuggestionStage { topicSelection, questions, result }
 
 class _SmartSuggestionScreenState extends State<SmartSuggestionScreen> {
   static const List<_SuggestionTopic> _topics = <_SuggestionTopic>[
@@ -61,9 +57,7 @@ class _SmartSuggestionScreenState extends State<SmartSuggestionScreen> {
         _SuggestionQuestion(
           question: 'Do your gums bleed when brushing or flossing?',
         ),
-        _SuggestionQuestion(
-          question: 'Are your gums red, swollen, or tender?',
-        ),
+        _SuggestionQuestion(question: 'Are your gums red, swollen, or tender?'),
         _SuggestionQuestion(
           question:
               'Do you have bad breath or gums that seem to be pulling away from the teeth?',
@@ -82,8 +76,7 @@ class _SmartSuggestionScreenState extends State<SmartSuggestionScreen> {
           question: 'Do you have severe pain or swelling around that tooth?',
         ),
         _SuggestionQuestion(
-          question:
-              'Does the tooth feel very loose or hard to keep clean?',
+          question: 'Does the tooth feel very loose or hard to keep clean?',
         ),
       ],
     ),
@@ -91,9 +84,7 @@ class _SmartSuggestionScreenState extends State<SmartSuggestionScreen> {
       title: 'Prosthesis',
       subtitle: 'Missing teeth or replacement issue',
       questions: <_SuggestionQuestion>[
-        _SuggestionQuestion(
-          question: 'Are you missing one or more teeth?',
-        ),
+        _SuggestionQuestion(question: 'Are you missing one or more teeth?'),
         _SuggestionQuestion(
           question:
               'Do you already wear a denture, bridge, or similar replacement that does not fit well?',
@@ -109,12 +100,10 @@ class _SmartSuggestionScreenState extends State<SmartSuggestionScreen> {
       subtitle: 'Crooked teeth or bite alignment',
       questions: <_SuggestionQuestion>[
         _SuggestionQuestion(
-          question:
-              'Are your teeth crowded, overlapping, or spaced far apart?',
+          question: 'Are your teeth crowded, overlapping, or spaced far apart?',
         ),
         _SuggestionQuestion(
-          question:
-              'Does your bite feel uneven, off, or not aligned properly?',
+          question: 'Does your bite feel uneven, off, or not aligned properly?',
         ),
         _SuggestionQuestion(
           question:
@@ -150,8 +139,7 @@ class _SmartSuggestionScreenState extends State<SmartSuggestionScreen> {
   int get _answeredQuestionsCount =>
       _answers.where((answer) => answer != null).length;
 
-  int get _yesAnswersCount =>
-      _answers.where((answer) => answer == true).length;
+  int get _yesAnswersCount => _answers.where((answer) => answer == true).length;
 
   bool get _showResult => _stage == _SuggestionStage.result;
 
@@ -222,8 +210,9 @@ class _SmartSuggestionScreenState extends State<SmartSuggestionScreen> {
       return;
     }
 
-    final preselectedCaseType =
-        suggestion == _noClearSuggestion ? null : suggestion;
+    final preselectedCaseType = suggestion == _noClearSuggestion
+        ? null
+        : suggestion;
 
     Navigator.push(
       context,
@@ -323,7 +312,9 @@ class _SmartSuggestionScreenState extends State<SmartSuggestionScreen> {
                       CustomButton(
                         label: 'Continue',
                         icon: Icons.arrow_forward_rounded,
-                        onPressed: _selectedTopic == null ? null : _startQuestions,
+                        onPressed: _selectedTopic == null
+                            ? null
+                            : _startQuestions,
                       ),
                     ] else ...[
                       Row(
@@ -458,9 +449,9 @@ class _TopicCard extends StatelessWidget {
                 child: Text(
                   subtitle,
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.textPrimary,
-                      ),
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary,
+                  ),
                 ),
               ),
               const SizedBox(width: 8),
@@ -501,10 +492,7 @@ class _QuestionCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            question,
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
+          Text(question, style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 16),
           Row(
             children: [
@@ -516,10 +504,7 @@ class _QuestionCard extends StatelessWidget {
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: OutlinedButton(
-                  onPressed: onNo,
-                  child: const Text('No'),
-                ),
+                child: OutlinedButton(onPressed: onNo, child: const Text('No')),
               ),
             ],
           ),
@@ -555,10 +540,7 @@ class _ResultCard extends StatelessWidget {
             style: Theme.of(context).textTheme.titleLarge,
           ),
           const SizedBox(height: 8),
-          Text(
-            helperText,
-            style: Theme.of(context).textTheme.bodyMedium,
-          ),
+          Text(helperText, style: Theme.of(context).textTheme.bodyMedium),
         ],
       ),
     );
@@ -566,9 +548,7 @@ class _ResultCard extends StatelessWidget {
 }
 
 class _SuggestionQuestion {
-  const _SuggestionQuestion({
-    required this.question,
-  });
+  const _SuggestionQuestion({required this.question});
 
   final String question;
 }

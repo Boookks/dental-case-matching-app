@@ -1,7 +1,8 @@
 import 'package:dental_case_matching_app/constants/app_colors.dart';
 import 'package:dental_case_matching_app/constants/app_routes.dart';
 import 'package:dental_case_matching_app/models/post_model.dart';
-import 'package:dental_case_matching_app/services/post_store.dart';
+import 'package:dental_case_matching_app/services/firestore_service.dart';
+import 'package:dental_case_matching_app/utils/app_session.dart';
 import 'package:dental_case_matching_app/widgets/patient_bottom_nav.dart';
 import 'package:flutter/material.dart';
 
@@ -13,14 +14,18 @@ class MyPostsScreen extends StatefulWidget {
 }
 
 class _MyPostsScreenState extends State<MyPostsScreen> {
-  static const String _currentUserId = PostStore.demoPatientUserId;
+  final _firestoreService = FirestoreService();
   final Set<String> _expandedPostIds = <String>{};
+  late final Stream<List<PostModel>> _postsStream;
 
-  List<PostModel> get _activePosts =>
-      PostStore.activePostsForUser(_currentUserId);
-
-  List<PostModel> get _closedPosts =>
-      PostStore.closedPostsForUser(_currentUserId);
+  @override
+  void initState() {
+    super.initState();
+    final userId = AppSession.currentUser?.uid;
+    _postsStream = userId == null
+        ? Stream<List<PostModel>>.value(const [])
+        : _firestoreService.watchPostsForUser(userId);
+  }
 
   String _formatDate(DateTime? dateTime) {
     if (dateTime == null) {
@@ -89,8 +94,7 @@ class _MyPostsScreenState extends State<MyPostsScreen> {
   Future<void> _closePost(PostModel post) async {
     final confirmed = await _confirmAction(
       title: 'Close Post?',
-      message:
-          'This will move the post to Closed and hide it from students.',
+      message: 'This will move the post to Closed and hide it from students.',
       confirmLabel: 'Close',
     );
 
@@ -98,10 +102,12 @@ class _MyPostsScreenState extends State<MyPostsScreen> {
       return;
     }
 
-    setState(() {
-      PostStore.closePost(post.postId);
-      _expandedPostIds.remove(post.postId);
-    });
+    try {
+      await _firestoreService.closePost(post.postId);
+      if (mounted) setState(() => _expandedPostIds.remove(post.postId));
+    } catch (_) {
+      _showMessage('Could not close the post. Please try again.');
+    }
   }
 
   Future<void> _deletePost(PostModel post) async {
@@ -116,10 +122,19 @@ class _MyPostsScreenState extends State<MyPostsScreen> {
       return;
     }
 
-    setState(() {
-      PostStore.deletePost(post.postId);
-      _expandedPostIds.remove(post.postId);
-    });
+    try {
+      await _firestoreService.deletePost(post.postId);
+      if (mounted) setState(() => _expandedPostIds.remove(post.postId));
+    } catch (_) {
+      _showMessage('Could not delete the post. Please try again.');
+    }
+  }
+
+  void _showMessage(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 
   void _navigateHome() {
@@ -128,15 +143,10 @@ class _MyPostsScreenState extends State<MyPostsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final activePosts = _activePosts;
-    final closedPosts = _closedPosts;
-
     return DefaultTabController(
       length: 2,
       child: Scaffold(
-        appBar: AppBar(
-          title: const Text('My Posts'),
-        ),
+        appBar: AppBar(title: const Text('My Posts')),
         bottomNavigationBar: PatientBottomNav(
           selectedIndex: 0,
           onHomeTap: _navigateHome,
@@ -185,38 +195,82 @@ class _MyPostsScreenState extends State<MyPostsScreen> {
                 ),
               ),
               Expanded(
-                child: TabBarView(
-                  children: [
-                    _PostsTab(
-                      posts: activePosts,
-                      emptyText: 'You have no active posts.',
-                      emptySubtext:
-                          'Create a new post or start a smart case suggestion.',
-                      isClosedTab: false,
-                      isExpanded: _isExpanded,
-                      formatDate: _formatDate,
-                      onToggleExpanded: _toggleExpanded,
-                      onClose: _closePost,
-                      onDelete: _deletePost,
-                    ),
-                    _PostsTab(
-                      posts: closedPosts,
-                      emptyText: 'You have no closed posts yet.',
-                      emptySubtext:
-                          'Posts you close will appear here for later review.',
-                      isClosedTab: true,
-                      isExpanded: _isExpanded,
-                      formatDate: _formatDate,
-                      onToggleExpanded: _toggleExpanded,
-                      onClose: null,
-                      onDelete: _deletePost,
-                    ),
-                  ],
+                child: StreamBuilder<List<PostModel>>(
+                  stream: _postsStream,
+                  builder: (context, snapshot) {
+                    if (snapshot.hasError) {
+                      return const _PostsMessage(
+                        message: 'Could not load your posts.',
+                      );
+                    }
+                    if (!snapshot.hasData) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+
+                    final activePosts = snapshot.data!
+                        .where((post) => !post.isClosed)
+                        .toList();
+                    final closedPosts =
+                        snapshot.data!.where((post) => post.isClosed).toList()
+                          ..sort((first, second) {
+                            final firstDate = first.closedAt ?? first.createdAt;
+                            final secondDate =
+                                second.closedAt ?? second.createdAt;
+                            return (secondDate ?? DateTime(1970)).compareTo(
+                              firstDate ?? DateTime(1970),
+                            );
+                          });
+
+                    return TabBarView(
+                      children: [
+                        _PostsTab(
+                          posts: activePosts,
+                          emptyText: 'You have no active posts.',
+                          emptySubtext:
+                              'Create a new post or start a smart case suggestion.',
+                          isClosedTab: false,
+                          isExpanded: _isExpanded,
+                          formatDate: _formatDate,
+                          onToggleExpanded: _toggleExpanded,
+                          onClose: _closePost,
+                          onDelete: _deletePost,
+                        ),
+                        _PostsTab(
+                          posts: closedPosts,
+                          emptyText: 'You have no closed posts yet.',
+                          emptySubtext:
+                              'Posts you close will appear here for later review.',
+                          isClosedTab: true,
+                          isExpanded: _isExpanded,
+                          formatDate: _formatDate,
+                          onToggleExpanded: _toggleExpanded,
+                          onClose: null,
+                          onDelete: _deletePost,
+                        ),
+                      ],
+                    );
+                  },
                 ),
               ),
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _PostsMessage extends StatelessWidget {
+  const _PostsMessage({required this.message});
+
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Text(message, style: Theme.of(context).textTheme.bodyMedium),
       ),
     );
   }
@@ -366,11 +420,11 @@ class _ManagedPostCard extends StatelessWidget {
                           post.isAlreadyAssessed
                               ? 'Already Assessed'
                               : 'Not Yet Assessed',
-                          style:
-                              Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: AppColors.primary,
-                                    fontWeight: FontWeight.w700,
-                                  ),
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(
+                                color: AppColors.primary,
+                                fontWeight: FontWeight.w700,
+                              ),
                         ),
                       ),
                     ],
@@ -400,9 +454,9 @@ class _ManagedPostCard extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               '$dateLabel: ${formatDate(dateValue)}',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
             ),
             const SizedBox(height: 16),
             Row(

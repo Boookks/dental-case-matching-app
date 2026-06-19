@@ -1,7 +1,7 @@
 import 'package:dental_case_matching_app/constants/app_colors.dart';
 import 'package:dental_case_matching_app/constants/app_routes.dart';
 import 'package:dental_case_matching_app/models/post_model.dart';
-import 'package:dental_case_matching_app/services/post_store.dart';
+import 'package:dental_case_matching_app/services/firestore_service.dart';
 import 'package:dental_case_matching_app/utils/app_session.dart';
 import 'package:dental_case_matching_app/widgets/custom_button.dart';
 import 'package:dental_case_matching_app/widgets/custom_textfield.dart';
@@ -44,6 +44,8 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   late final TextEditingController _detailsController;
   bool? _isAlreadyAssessed;
   String? _selectedCaseType;
+  final _firestoreService = FirestoreService();
+  bool _isSubmitting = false;
 
   @override
   void initState() {
@@ -80,7 +82,8 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
         (AppSession.patientPhoneNumber?.trim().isNotEmpty ?? false) &&
         _selectedCaseType != null &&
         _selectedCaseType!.isNotEmpty &&
-        _detailsController.text.trim().isNotEmpty;
+        _detailsController.text.trim().isNotEmpty &&
+        !_isSubmitting;
   }
 
   String _buildPostTitle(String details) {
@@ -104,7 +107,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
     });
   }
 
-  void _submitPost() {
+  Future<void> _submitPost() async {
     if (!_canSubmit) {
       if ((AppSession.patientPhoneNumber?.trim().isEmpty ?? true)) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -119,11 +122,20 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
     final caseType = _selectedCaseType!;
     final details = _detailsController.text.trim();
     final contactInfo = AppSession.patientPhoneNumber ?? '';
+    final user = AppSession.currentUser;
+    if (user == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please log in again before posting.')),
+      );
+      return;
+    }
 
-    PostStore.addPost(
-      PostModel(
-        postId: DateTime.now().millisecondsSinceEpoch.toString(),
-        userId: 'demo-patient',
+    setState(() => _isSubmitting = true);
+    try {
+      final post = PostModel(
+        postId: '${user.uid}_${DateTime.now().microsecondsSinceEpoch}',
+        userId: user.uid,
+        patientName: user.name,
         title: _buildPostTitle(details),
         description: details,
         symptoms: const [],
@@ -131,14 +143,23 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
         isAlreadyAssessed: _isAlreadyAssessed ?? false,
         contactInfo: contactInfo,
         createdAt: DateTime.now(),
-      ),
-    );
+      );
+      await _firestoreService.savePost(post);
+      if (!mounted) return;
 
-    Navigator.pushNamedAndRemoveUntil(
-      context,
-      AppRoutes.myPosts,
-      ModalRoute.withName(AppRoutes.patientHome),
-    );
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        AppRoutes.myPosts,
+        ModalRoute.withName(AppRoutes.patientHome),
+      );
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Could not create the post. Try again.')),
+      );
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
+    }
   }
 
   void _goHomeAndClearStack() {
@@ -262,7 +283,8 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                             : 'Pick the closest case type and describe the issue briefly.',
                         style: Theme.of(context).textTheme.bodyMedium,
                       ),
-                      if (AppSession.patientPhoneNumber?.trim().isEmpty ?? true) ...[
+                      if (AppSession.patientPhoneNumber?.trim().isEmpty ??
+                          true) ...[
                         const SizedBox(height: 12),
                         Container(
                           width: double.infinity,
@@ -273,11 +295,11 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                           ),
                           child: Text(
                             'Add your contact number in your profile before posting.',
-                            style:
-                                Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                      color: AppColors.primary,
-                                      fontWeight: FontWeight.w600,
-                                    ),
+                            style: Theme.of(context).textTheme.bodyMedium
+                                ?.copyWith(
+                                  color: AppColors.primary,
+                                  fontWeight: FontWeight.w600,
+                                ),
                           ),
                         ),
                       ],
@@ -315,15 +337,15 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                       Text(
                         'Both fields are required before posting.',
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: AppColors.textSecondary,
-                            ),
+                          color: AppColors.textSecondary,
+                        ),
                       ),
                     ],
                   ),
                 ),
                 const SizedBox(height: 16),
                 CustomButton(
-                  label: 'Post Case',
+                  label: _isSubmitting ? 'Posting...' : 'Post Case',
                   icon: Icons.send_rounded,
                   onPressed: _canSubmit ? _submitPost : null,
                 ),

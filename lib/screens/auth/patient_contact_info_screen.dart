@@ -1,4 +1,6 @@
 import 'package:dental_case_matching_app/constants/app_routes.dart';
+import 'package:dental_case_matching_app/services/auth_service.dart';
+import 'package:dental_case_matching_app/utils/account_type.dart';
 import 'package:dental_case_matching_app/utils/app_session.dart';
 import 'package:dental_case_matching_app/utils/jordanian_phone.dart';
 import 'package:dental_case_matching_app/widgets/app_page_scaffold.dart';
@@ -16,6 +18,8 @@ class PatientContactInfoScreen extends StatefulWidget {
 
 class _PatientContactInfoScreenState extends State<PatientContactInfoScreen> {
   late final TextEditingController _phoneController;
+  final _authService = AuthService();
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -44,25 +48,53 @@ class _PatientContactInfoScreenState extends State<PatientContactInfoScreen> {
     return isValidJordanianPhone(normalized);
   }
 
-  void _savePhoneNumber() {
+  Future<void> _savePhoneNumber() async {
     final normalizedPhone = normalizeJordanianPhone(_phoneController.text);
 
     if (!isValidJordanianPhone(normalizedPhone)) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Enter a valid Jordanian phone number like 07XXXXXXXX.'),
+          content: Text(
+            'Enter a valid Jordanian phone number like 07XXXXXXXX.',
+          ),
         ),
       );
       return;
     }
 
-    AppSession.setPatientPhoneNumber(normalizedPhone);
+    if (!AppSession.hasPendingRegistration) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Enter your account details again.')),
+      );
+      Navigator.popUntil(context, ModalRoute.withName(AppRoutes.register));
+      return;
+    }
 
-    Navigator.pushNamedAndRemoveUntil(
-      context,
-      AppRoutes.patientHome,
-      (route) => false,
-    );
+    setState(() => _isLoading = true);
+    try {
+      final user = await _authService.registerWithEmail(
+        name: AppSession.pendingName!,
+        email: AppSession.pendingEmail!,
+        password: AppSession.pendingPassword!,
+        accountType: AccountType.patient,
+        phoneNumber: normalizedPhone,
+      );
+      AppSession.setCurrentUser(user);
+      AppSession.clearPendingRegistration();
+      if (!mounted) return;
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        AppRoutes.patientHome,
+        (route) => false,
+      );
+    } on AuthFailure catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(error.message)));
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 
   @override
@@ -91,9 +123,9 @@ class _PatientContactInfoScreenState extends State<PatientContactInfoScreen> {
           ),
           const SizedBox(height: 16),
           CustomButton(
-            label: 'Continue',
+            label: _isLoading ? 'Creating Account...' : 'Continue',
             icon: Icons.arrow_forward_rounded,
-            onPressed: _isValid ? _savePhoneNumber : null,
+            onPressed: _isValid && !_isLoading ? _savePhoneNumber : null,
           ),
         ],
       ),

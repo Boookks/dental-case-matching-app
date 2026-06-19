@@ -37,10 +37,7 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
-          textStyle: const TextStyle(
-            fontWeight: FontWeight.w600,
-            fontSize: 16,
-          ),
+          textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
@@ -51,17 +48,16 @@ class AppTheme {
             borderRadius: BorderRadius.circular(16),
           ),
           foregroundColor: AppColors.textPrimary,
-          textStyle: const TextStyle(
-            fontWeight: FontWeight.w600,
-            fontSize: 16,
-          ),
+          textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: AppColors.surface,
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 16,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
           borderSide: const BorderSide(color: AppColors.border),

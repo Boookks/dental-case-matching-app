@@ -1,5 +1,7 @@
 import 'package:dental_case_matching_app/constants/app_colors.dart';
 import 'package:dental_case_matching_app/constants/app_routes.dart';
+import 'package:dental_case_matching_app/services/auth_service.dart';
+import 'package:dental_case_matching_app/services/firestore_service.dart';
 import 'package:dental_case_matching_app/utils/app_session.dart';
 import 'package:dental_case_matching_app/utils/jordanian_phone.dart';
 import 'package:dental_case_matching_app/widgets/custom_button.dart';
@@ -17,6 +19,10 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   late final TextEditingController _phoneController;
+  final _authService = AuthService();
+  final _firestoreService = FirestoreService();
+  bool _isSavingPhone = false;
+  bool _isLoggingOut = false;
 
   @override
   void initState() {
@@ -32,7 +38,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     super.dispose();
   }
 
-  void _savePhoneNumber() {
+  Future<void> _savePhoneNumber() async {
     final normalizedPhone = normalizeJordanianPhone(_phoneController.text);
     final currentSavedPhone = AppSession.patientPhoneNumber ?? '';
 
@@ -43,33 +49,60 @@ class _ProfileScreenState extends State<ProfileScreen> {
       );
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Enter a valid Jordanian phone number like 07XXXXXXXX.'),
+          content: Text(
+            'Enter a valid Jordanian phone number like 07XXXXXXXX.',
+          ),
         ),
       );
       return;
     }
 
-    setState(() {
+    final user = AppSession.currentUser;
+    if (user == null) {
+      _showMessage('Please log in again to update your contact number.');
+      return;
+    }
+
+    setState(() => _isSavingPhone = true);
+    try {
+      await _firestoreService.updatePatientPhone(user.uid, normalizedPhone);
+      AppSession.setPatientPhoneNumber(normalizedPhone);
+      if (!mounted) return;
       _phoneController.text = normalizedPhone;
       _phoneController.selection = TextSelection.collapsed(
         offset: normalizedPhone.length,
       );
-      AppSession.setPatientPhoneNumber(normalizedPhone);
-    });
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Contact number saved.'),
-      ),
-    );
+      _showMessage('Contact number saved.');
+    } catch (_) {
+      _phoneController.text = currentSavedPhone;
+      _showMessage('Could not save the contact number. Please try again.');
+    } finally {
+      if (mounted) setState(() => _isSavingPhone = false);
+    }
   }
 
-  void _logout() {
-    Navigator.pushNamedAndRemoveUntil(
+  Future<void> _logout() async {
+    setState(() => _isLoggingOut = true);
+    try {
+      await _authService.signOut();
+      AppSession.clearSession();
+      if (!mounted) return;
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        AppRoutes.login,
+        (route) => false,
+      );
+    } catch (_) {
+      _showMessage('Could not log out. Please try again.');
+      if (mounted) setState(() => _isLoggingOut = false);
+    }
+  }
+
+  void _showMessage(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(
       context,
-      AppRoutes.login,
-      (route) => false,
-    );
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 
   @override
@@ -104,12 +137,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
           child: ListView(
             padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
             children: [
-              const ProfileIdentityCard(
+              ProfileIdentityCard(
                 title: 'Patient Profile',
                 description:
                     'View your account information, update your required contact number, and sign out.',
-                name: 'Demo Patient',
-                email: 'patient@example.com',
+                name: AppSession.currentUser?.name ?? 'Patient',
+                email: AppSession.currentUser?.email ?? '',
                 role: 'Patient',
                 avatarIcon: Icons.person_rounded,
               ),
@@ -144,23 +177,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     Text(
                       'Use a local Jordanian number in 07XXXXXXXX format.',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: AppColors.textSecondary,
-                          ),
+                        color: AppColors.textSecondary,
+                      ),
                     ),
                     const SizedBox(height: 16),
                     CustomButton(
-                      label: 'Save Contact Info',
+                      label: _isSavingPhone ? 'Saving...' : 'Save Contact Info',
                       icon: Icons.save_outlined,
-                      onPressed: _savePhoneNumber,
+                      onPressed: _isSavingPhone ? null : _savePhoneNumber,
                     ),
                   ],
                 ),
               ),
               const SizedBox(height: 16),
-              Text(
-                'Account',
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
+              Text('Account', style: Theme.of(context).textTheme.titleLarge),
               const SizedBox(height: 12),
               Container(
                 padding: const EdgeInsets.all(18),
@@ -178,9 +208,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                     const SizedBox(height: 16),
                     OutlinedButton.icon(
-                      onPressed: _logout,
+                      onPressed: _isLoggingOut ? null : _logout,
                       icon: const Icon(Icons.logout_rounded),
-                      label: const Text('Logout'),
+                      label: Text(_isLoggingOut ? 'Logging Out...' : 'Logout'),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: Colors.redAccent,
                         side: const BorderSide(color: Color(0xFFFFCDD2)),

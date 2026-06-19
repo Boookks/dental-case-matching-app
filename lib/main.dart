@@ -1,5 +1,6 @@
 import 'package:dental_case_matching_app/constants/app_routes.dart';
 import 'package:dental_case_matching_app/constants/app_theme.dart';
+import 'package:dental_case_matching_app/firebase_options.dart';
 import 'package:dental_case_matching_app/screens/auth/login_screen.dart';
 import 'package:dental_case_matching_app/screens/auth/patient_contact_info_screen.dart';
 import 'package:dental_case_matching_app/screens/auth/register_screen.dart';
@@ -14,9 +15,15 @@ import 'package:dental_case_matching_app/screens/student/case_details_screen.dar
 import 'package:dental_case_matching_app/screens/student/profile_screen.dart'
     as student_profile;
 import 'package:dental_case_matching_app/screens/student/student_home_screen.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
+    await Firebase.initializeApp(options: DefaultFirebaseOptions.android);
+  }
   runApp(const DentalCaseMatchingApp());
 }
 

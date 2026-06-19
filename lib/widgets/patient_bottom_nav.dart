@@ -43,12 +43,7 @@ class PatientBottomNav extends StatelessWidget {
                 onTap: onHomeTap,
               ),
             ),
-            SizedBox(
-              width: 72,
-              child: _CenterActionButton(
-                onTap: onCreateTap,
-              ),
-            ),
+            SizedBox(width: 72, child: _CenterActionButton(onTap: onCreateTap)),
             Expanded(
               child: _NavItem(
                 icon: Icons.person_rounded,
@@ -94,9 +89,9 @@ class _NavItem extends StatelessWidget {
             Text(
               label,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: color,
-                    fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-                  ),
+                color: color,
+                fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+              ),
             ),
           ],
         ),
@@ -132,11 +127,7 @@ class _CenterActionButton extends StatelessWidget {
                 ),
               ],
             ),
-            child: const Icon(
-              Icons.add_rounded,
-              color: Colors.white,
-              size: 30,
-            ),
+            child: const Icon(Icons.add_rounded, color: Colors.white, size: 30),
           ),
         ),
       ),

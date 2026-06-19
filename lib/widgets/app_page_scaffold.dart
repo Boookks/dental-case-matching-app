@@ -19,10 +19,7 @@ class AppPageScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(AppStrings.appName),
-        actions: actions,
-      ),
+      appBar: AppBar(title: const Text(AppStrings.appName), actions: actions),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(20),
@@ -41,21 +38,24 @@ class AppPageScaffold extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Icon(Icons.local_hospital_outlined, color: Colors.white),
+                  const Icon(
+                    Icons.local_hospital_outlined,
+                    color: Colors.white,
+                  ),
                   const SizedBox(height: 16),
                   Text(
                     title,
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w700,
-                        ),
+                      color: Colors.white,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     subtitle,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Colors.white.withValues(alpha: 0.9),
-                        ),
+                      color: Colors.white.withValues(alpha: 0.9),
+                    ),
                   ),
                 ],
               ),

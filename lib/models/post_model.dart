@@ -2,6 +2,7 @@ class PostModel {
   const PostModel({
     required this.postId,
     required this.userId,
+    required this.patientName,
     required this.title,
     required this.description,
     required this.symptoms,
@@ -15,6 +16,7 @@ class PostModel {
 
   final String postId;
   final String userId;
+  final String patientName;
   final String title;
   final String description;
   final List<String> symptoms;
@@ -28,6 +30,7 @@ class PostModel {
   PostModel copyWith({
     String? postId,
     String? userId,
+    String? patientName,
     String? title,
     String? description,
     List<String>? symptoms,
@@ -41,6 +44,7 @@ class PostModel {
     return PostModel(
       postId: postId ?? this.postId,
       userId: userId ?? this.userId,
+      patientName: patientName ?? this.patientName,
       title: title ?? this.title,
       description: description ?? this.description,
       symptoms: symptoms ?? this.symptoms,
@@ -57,6 +61,7 @@ class PostModel {
     return {
       'postId': postId,
       'userId': userId,
+      'patientName': patientName,
       'title': title,
       'description': description,
       'symptoms': symptoms,
@@ -73,6 +78,7 @@ class PostModel {
     return PostModel(
       postId: map['postId'] as String? ?? '',
       userId: map['userId'] as String? ?? '',
+      patientName: map['patientName'] as String? ?? 'Patient',
       title: map['title'] as String? ?? '',
       description: map['description'] as String? ?? '',
       symptoms: List<String>.from(map['symptoms'] as List? ?? const []),

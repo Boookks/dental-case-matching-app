@@ -2,7 +2,7 @@ import 'package:dental_case_matching_app/constants/app_colors.dart';
 import 'package:dental_case_matching_app/constants/app_routes.dart';
 import 'package:dental_case_matching_app/constants/app_strings.dart';
 import 'package:dental_case_matching_app/models/post_model.dart';
-import 'package:dental_case_matching_app/services/post_store.dart';
+import 'package:dental_case_matching_app/services/firestore_service.dart';
 import 'package:dental_case_matching_app/widgets/post_card.dart';
 import 'package:dental_case_matching_app/widgets/student_bottom_nav.dart';
 import 'package:flutter/material.dart';
@@ -27,10 +27,9 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
   ];
 
   String _selectedFilter = 'All';
+  final _postsStream = FirestoreService().watchActivePosts();
 
-  List<PostModel> get _filteredPosts {
-    final posts = PostStore.activePosts;
-
+  List<PostModel> _filteredPosts(List<PostModel> posts) {
     if (_selectedFilter == 'All') {
       return posts;
     }
@@ -58,8 +57,6 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final posts = _filteredPosts;
-
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, result) {
@@ -80,68 +77,73 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
           },
         ),
         body: SafeArea(
-          child: ListView(
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
-            children: [
-              Text(
-                'All Cases',
-                style: Theme.of(context).textTheme.headlineMedium,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Use the case chips to narrow down the list.',
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-              const SizedBox(height: 16),
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: [
-                    for (final label in _filterLabels) ...[
-                      _CaseFilterChip(
-                        label: label,
-                        selected: _selectedFilter == label,
-                        onTap: () => _setFilter(label),
-                      ),
-                      if (label != _filterLabels.last) const SizedBox(width: 8),
-                    ],
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16),
-              if (posts.isEmpty)
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(18),
-                    child: Text(
-                      _selectedFilter == 'All'
-                          ? 'No cases are available yet.'
-                          : 'No cases match this filter yet.',
-                      style: Theme.of(context).textTheme.bodyMedium,
+          child: StreamBuilder<List<PostModel>>(
+            stream: _postsStream,
+            builder: (context, snapshot) {
+              final posts = _filteredPosts(snapshot.data ?? const []);
+
+              return ListView(
+                padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+                children: [
+                  Text(
+                    'All Cases',
+                    style: Theme.of(context).textTheme.headlineMedium,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Use the case chips to narrow down the list.',
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                  const SizedBox(height: 16),
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        for (final label in _filterLabels) ...[
+                          _CaseFilterChip(
+                            label: label,
+                            selected: _selectedFilter == label,
+                            onTap: () => _setFilter(label),
+                          ),
+                          if (label != _filterLabels.last)
+                            const SizedBox(width: 8),
+                        ],
+                      ],
                     ),
                   ),
-                )
-              else
-                ...[
-                  for (final post in posts) ...[
-                    PostCard(
-                      title: post.suggestedCaseType,
-                      description: post.description,
-                      assessmentLabel: post.isAlreadyAssessed
-                          ? 'Already Assessed'
-                          : 'Not Yet Assessed',
-                      dateLabel: 'Posted on',
-                      dateValue: _formatDate(post.createdAt),
-                      onTap: () => Navigator.pushNamed(
-                        context,
-                        AppRoutes.caseDetails,
-                        arguments: post,
+                  const SizedBox(height: 16),
+                  if (snapshot.hasError)
+                    _FeedMessage(message: 'Could not load patient cases.')
+                  else if (!snapshot.hasData)
+                    const Center(child: CircularProgressIndicator())
+                  else if (posts.isEmpty)
+                    _FeedMessage(
+                      message: _selectedFilter == 'All'
+                          ? 'No cases are available yet.'
+                          : 'No cases match this filter yet.',
+                    )
+                  else ...[
+                    for (final post in posts) ...[
+                      PostCard(
+                        title: post.suggestedCaseType,
+                        description: post.description,
+                        assessmentLabel: post.isAlreadyAssessed
+                            ? 'Already Assessed'
+                            : 'Not Yet Assessed',
+                        dateLabel: 'Posted on',
+                        dateValue: _formatDate(post.createdAt),
+                        onTap: () => Navigator.pushNamed(
+                          context,
+                          AppRoutes.caseDetails,
+                          arguments: post,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 12),
+                      const SizedBox(height: 12),
+                    ],
                   ],
                 ],
-            ],
+              );
+            },
           ),
         ),
       ),
@@ -170,6 +172,22 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
 
     final month = months[dateTime.month - 1];
     return '$month ${dateTime.day}, ${dateTime.year}';
+  }
+}
+
+class _FeedMessage extends StatelessWidget {
+  const _FeedMessage({required this.message});
+
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(18),
+        child: Text(message, style: Theme.of(context).textTheme.bodyMedium),
+      ),
+    );
   }
 }
 
@@ -205,9 +223,9 @@ class _CaseFilterChip extends StatelessWidget {
           child: Text(
             label,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: color,
-                  fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-                ),
+              color: color,
+              fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+            ),
           ),
         ),
       ),

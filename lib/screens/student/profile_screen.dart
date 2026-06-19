@@ -1,5 +1,7 @@
 import 'package:dental_case_matching_app/constants/app_colors.dart';
 import 'package:dental_case_matching_app/constants/app_routes.dart';
+import 'package:dental_case_matching_app/services/auth_service.dart';
+import 'package:dental_case_matching_app/utils/app_session.dart';
 import 'package:dental_case_matching_app/widgets/profile_identity_card.dart';
 import 'package:dental_case_matching_app/widgets/student_bottom_nav.dart';
 import 'package:flutter/material.dart';
@@ -7,12 +9,22 @@ import 'package:flutter/material.dart';
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
-  void _logout(BuildContext context) {
-    Navigator.pushNamedAndRemoveUntil(
-      context,
-      AppRoutes.login,
-      (route) => false,
-    );
+  Future<void> _logout(BuildContext context) async {
+    try {
+      await AuthService().signOut();
+      AppSession.clearSession();
+      if (!context.mounted) return;
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        AppRoutes.login,
+        (route) => false,
+      );
+    } catch (_) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Could not log out. Please try again.')),
+      );
+    }
   }
 
   @override
@@ -44,12 +56,12 @@ class ProfileScreen extends StatelessWidget {
           child: ListView(
             padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
             children: [
-              const ProfileIdentityCard(
+              ProfileIdentityCard(
                 title: 'Student Profile',
                 description:
                     'View your account information and sign out when you are done browsing cases.',
-                name: 'Demo Student',
-                email: 'student@example.com',
+                name: AppSession.currentUser?.name ?? 'Dental Student',
+                email: AppSession.currentUser?.email ?? '',
                 role: 'Dental Student',
                 avatarIcon: Icons.school_rounded,
               ),

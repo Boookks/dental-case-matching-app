@@ -40,15 +40,9 @@ class ProfileIdentityCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          Text(
-            title,
-            style: Theme.of(context).textTheme.headlineSmall,
-          ),
+          Text(title, style: Theme.of(context).textTheme.headlineSmall),
           const SizedBox(height: 8),
-          Text(
-            description,
-            style: Theme.of(context).textTheme.bodyMedium,
-          ),
+          Text(description, style: Theme.of(context).textTheme.bodyMedium),
           const SizedBox(height: 18),
           _ProfileItem(label: 'Name', value: name),
           const SizedBox(height: 12),
@@ -81,15 +75,12 @@ class _ProfileItem extends StatelessWidget {
         children: [
           Text(
             label,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: AppColors.textSecondary,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
           ),
           const SizedBox(height: 4),
-          Text(
-            value,
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
+          Text(value, style: Theme.of(context).textTheme.titleMedium),
         ],
       ),
     );

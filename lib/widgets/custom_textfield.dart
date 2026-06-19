@@ -25,10 +25,7 @@ class CustomTextField extends StatelessWidget {
       maxLines: maxLines,
       keyboardType: keyboardType,
       obscureText: obscureText,
-      decoration: InputDecoration(
-        labelText: label,
-        hintText: hintText,
-      ),
+      decoration: InputDecoration(labelText: label, hintText: hintText),
     );
   }
 }

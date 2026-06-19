@@ -2,7 +2,6 @@ import 'package:dental_case_matching_app/constants/app_colors.dart';
 import 'package:dental_case_matching_app/constants/app_routes.dart';
 import 'package:dental_case_matching_app/constants/app_strings.dart';
 import 'package:dental_case_matching_app/models/post_model.dart';
-import 'package:dental_case_matching_app/services/post_store.dart';
 import 'package:dental_case_matching_app/widgets/student_bottom_nav.dart';
 import 'package:flutter/material.dart';
 
@@ -56,7 +55,8 @@ class _CaseDetailsScreenState extends State<CaseDetailsScreen> {
   Widget build(BuildContext context) {
     final fallbackPost = PostModel(
       postId: 'fallback',
-      userId: 'demo-patient',
+      userId: '',
+      patientName: 'Patient',
       title: 'Patient Case',
       description: 'No case details are available yet.',
       symptoms: const [],
@@ -67,14 +67,10 @@ class _CaseDetailsScreenState extends State<CaseDetailsScreen> {
     );
     final post =
         ModalRoute.of(context)?.settings.arguments as PostModel? ??
-            (PostStore.activePosts.isNotEmpty
-                ? PostStore.activePosts.first
-                : fallbackPost);
+        fallbackPost;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(AppStrings.appName),
-      ),
+      appBar: AppBar(title: const Text(AppStrings.appName)),
       bottomNavigationBar: StudentBottomNav(
         selectedIndex: 0,
         onHomeTap: () {
@@ -136,9 +132,7 @@ class _CaseDetailsScreenState extends State<CaseDetailsScreen> {
                                   post.isAlreadyAssessed
                                       ? 'Already Assessed'
                                       : 'Not Yet Assessed',
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodySmall
+                                  style: Theme.of(context).textTheme.bodySmall
                                       ?.copyWith(
                                         color: AppColors.primary,
                                         fontWeight: FontWeight.w700,
@@ -176,7 +170,7 @@ class _CaseDetailsScreenState extends State<CaseDetailsScreen> {
                     _InfoCard(
                       title: 'Patient Name',
                       child: Text(
-                        'Demo Patient',
+                        post.patientName,
                         style: Theme.of(context).textTheme.bodyMedium,
                       ),
                     ),
@@ -210,10 +204,7 @@ class _CaseDetailsScreenState extends State<CaseDetailsScreen> {
 }
 
 class _InfoCard extends StatelessWidget {
-  const _InfoCard({
-    required this.title,
-    required this.child,
-  });
+  const _InfoCard({required this.title, required this.child});
 
   final String title;
   final Widget child;
@@ -226,10 +217,7 @@ class _InfoCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              title,
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
+            Text(title, style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: 8),
             child,
           ],
